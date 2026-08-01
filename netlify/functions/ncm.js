@@ -74,5 +74,15 @@ exports.handler = async function (event, context) {
       event.path = u.pathname
     }
   } catch (e) {}
+  // serverless-http 用 event.requestContext.identity.sourceIp 设置 req.ip，
+  // 而 NCM server.js 会对 req.ip 调 substring()，缺失会直接抛 TypeError。
+  // Netlify 事件是 API Gateway v2 格式（源 IP 在 requestContext.http.sourceIp），
+  // 需转成 identity.sourceIp；两者都缺失时兜底 127.0.0.1（NCM 仅用它注入请求头）。
+  event.requestContext = event.requestContext || {}
+  if (!event.requestContext.identity || !event.requestContext.identity.sourceIp) {
+    event.requestContext.identity = {
+      sourceIp: (event.requestContext.http && event.requestContext.http.sourceIp) || '127.0.0.1',
+    }
+  }
   return handler(event, context)
 }

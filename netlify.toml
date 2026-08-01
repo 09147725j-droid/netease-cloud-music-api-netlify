@@ -1,0 +1,17 @@
+[build]
+  functions = "netlify/functions"
+
+# 所有路径统一交给函数处理（NeteaseCloudMusicApi 的路由在 Express app 内部匹配）
+[[redirects]]
+  from = "/*"
+  to = "/.netlify/functions/ncm"
+  status = 200
+
+# CORS：插件前端跨域调用必需
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Access-Control-Allow-Origin = "*"
+    Access-Control-Allow-Methods = "GET, POST, OPTIONS"
+    Access-Control-Allow-Headers = "Content-Type, cookie"
+    Access-Control-Max-Age = "86400"
